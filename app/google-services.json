@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "221082331144",
+    "project_id": "fir-groupproj",
+    "storage_bucket": "fir-groupproj.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:221082331144:android:c471ea1173a339720a49bd",
+        "android_client_info": {
+          "package_name": "com.micah.beatful"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "221082331144-q3j5nieq0lpejm8pbampf6ju9ojn09ag.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA82u4e7EXWeBen4O7-ih-6p2DYwl0ONgM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "221082331144-q3j5nieq0lpejm8pbampf6ju9ojn09ag.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
