@@ -66,7 +66,6 @@ public class SignOutFragment extends DialogFragment {
                 if (player.isPlaying()) {
                     player.stop();
                 }
-                player.release();
             }
         } catch (Exception e) {
             e.printStackTrace();
