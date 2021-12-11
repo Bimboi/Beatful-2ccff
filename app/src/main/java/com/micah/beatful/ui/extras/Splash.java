@@ -11,15 +11,11 @@ import com.micah.beatful.HostActivity;
 import com.micah.beatful.R;
 import com.micah.beatful.ui.account.LoginActivity;
 
-//import java.util.Objects;
-
 public class Splash extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
-//        Objects.requireNonNull(getSupportActionBar()).hide();
 
         SharedPreferences prefs = getSharedPreferences("Credentials", MODE_PRIVATE);
         String username = prefs.getString("userID", null);
@@ -37,6 +33,6 @@ public class Splash extends AppCompatActivity {
 
             finish();
 
-        },3*1000);
+        }, 3 * 1000);
     }
 }

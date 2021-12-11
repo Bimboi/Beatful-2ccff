@@ -1,7 +1,6 @@
 package com.micah.beatful.ui.settings;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -24,10 +23,9 @@ import java.util.Objects;
 public class SettingsFragment extends Fragment {
     Button btnGreen;
     Button btnBlue;
+    Button btnApply;
     TextView txtCaption1;
-    Boolean fancyPrefChosen = false;
     View myLayout1Vertical;
-    final int mode = Activity.MODE_PRIVATE;
     final String MYPREFS = "MyPreferences_001";
 
     SharedPreferences mySharedPreferences;
@@ -50,32 +48,31 @@ public class SettingsFragment extends Fragment {
         if (mySharedPreferences != null && mySharedPreferences.contains("backColor")) {
             applySavedPreferences();
         } else {
-            Toast.makeText(requireContext(), "No Preferences Found", Toast.LENGTH_LONG).show();
+            setDefaultTheme();
+            Toast.makeText(requireContext(), "Using Default Preference", Toast.LENGTH_LONG).show();
         }
+
         btnGreen = root.findViewById(R.id.btnGreen);
-        btnGreen.setOnClickListener(this::onClick);
+        btnGreen.setOnClickListener(view -> setDefaultTheme());
         btnBlue = root.findViewById(R.id.btnBlue);
-        btnBlue.setOnClickListener(this::onClick);
+        btnBlue.setOnClickListener(view -> setDiffTheme());
+        btnApply = root.findViewById(R.id.btnApply);
+        btnApply.setOnClickListener(view -> requireActivity().recreate());
         return root;
     }
 
-    // conditional method call not recommended
-    public void onClick(View view){
+    public void setDefaultTheme() {
         myEditor = mySharedPreferences.edit();
-        myEditor.clear();
+        myEditor.putInt("backColor", Color.parseColor("#FDA376CA")); // purple_500
+        myEditor.putString("textStyle", "normal");
+        myEditor.apply();
+        applySavedPreferences();
+    }
 
-        if(view.getId() == btnGreen.getId()){
-            myEditor.putInt("backColor", Color.DKGRAY);
-            myEditor.putInt("textSize", 16);
-            myEditor.putString("textStyle", "bold");
-            myEditor.putInt("layoutColor", Color.BLACK);
-        }
-        else{
-            myEditor.putInt("backColor", Color.BLUE);
-            myEditor.putInt("textSize", 20);
-            myEditor.putString("textStyle", "italic");
-            myEditor.putInt("layoutColor", Color.CYAN);
-        }
+    public void setDiffTheme() {
+        myEditor = mySharedPreferences.edit();
+        myEditor.putInt("backColor", Color.parseColor("#069386")); // teal_500
+        myEditor.putString("textStyle", "italic");
         myEditor.apply();
         applySavedPreferences();
     }
@@ -83,27 +80,25 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onPause() {
         myEditor = mySharedPreferences.edit();
-        myEditor.putString("DateLastExecution", new Date().toLocaleString());
+        myEditor.putString("DateLastExecution", String.valueOf(new Date()));
         myEditor.apply();
         super.onPause();
     }
 
-    public void applySavedPreferences(){
-        int backColor = mySharedPreferences.getInt("backColor", Color.RED);
-        int textSize = mySharedPreferences.getInt("textSize", 12);
-        String textStyle = mySharedPreferences.getString("textStyle", "bold");
-        int layoutColor = mySharedPreferences.getInt("layoutColor", Color.CYAN);
-        String msg = "Color: " + backColor + "\n" + "Size: " + textSize + "\n" + "Style: " + textStyle;
-        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
+    public void applySavedPreferences() {
+        int backColor = mySharedPreferences.getInt("backColor", Color.parseColor("#FDA376CA"));
+        String textStyle = mySharedPreferences.getString("textStyle", "normal");
+        String msg = "Color Value: " + backColor + "\n" + "Style: " + textStyle;
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
 
         txtCaption1.setBackgroundColor(backColor);
-        txtCaption1.setTextSize(textSize);
-        if(Objects.requireNonNull(textStyle).compareTo("bold")==0){
-            txtCaption1.setTypeface(Typeface.SERIF, Typeface.BOLD);
-        }
-        else{
+        txtCaption1.setTextSize(16);
+        if (Objects.requireNonNull(textStyle).compareTo("normal") == 0) {
+            txtCaption1.setTypeface(Typeface.SERIF, Typeface.NORMAL);
+            txtCaption1.setTextColor(Color.WHITE);
+        } else {
             txtCaption1.setTypeface(Typeface.SERIF, Typeface.ITALIC);
+            txtCaption1.setTextColor(Color.BLACK);
         }
-        myLayout1Vertical.setBackgroundColor(layoutColor);
     }
 }

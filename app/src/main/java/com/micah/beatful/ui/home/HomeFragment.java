@@ -7,7 +7,6 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -16,11 +15,8 @@ import androidx.fragment.app.Fragment;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.karumi.dexter.listener.single.PermissionListener;
 
 import com.micah.beatful.R;
 
@@ -31,7 +27,6 @@ import java.util.List;
 public class HomeFragment extends Fragment {
 
     private ListView listView;
-    private String[] items;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -76,7 +71,7 @@ public class HomeFragment extends Fragment {
 
     public void displaySong() {
         final ArrayList<File> mySongs = findSong(Environment.getExternalStorageDirectory());
-        items = new String[mySongs.size()];
+        String[] items = new String[mySongs.size()];
         for (int i = 0; i < mySongs.size(); i++) {
             items[i] = mySongs.get(i).getName().replace(".mp3", "").replace(".wav", "");
         }
@@ -84,18 +79,15 @@ public class HomeFragment extends Fragment {
         CustomAdapter customAdapter = new CustomAdapter(items, getLayoutInflater());
         listView.setAdapter(customAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String songName = (String) listView.getItemAtPosition(i);
+        listView.setOnItemClickListener((adapterView, view, i, l) -> {
+            String songName = (String) listView.getItemAtPosition(i);
 
-                Intent intent = new Intent(new Intent(requireContext(), BeatPlayer.class));
-                intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
-                intent.putExtra("songs", mySongs)
-                       .putExtra("songname", songName)
-                       .putExtra("pos", i);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(new Intent(requireContext(), BeatPlayer.class));
+            intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
+            intent.putExtra("songs", mySongs)
+                   .putExtra("songname", songName)
+                   .putExtra("pos", i);
+            startActivity(intent);
         });
     }
 }

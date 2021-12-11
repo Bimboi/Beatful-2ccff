@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import androidx.fragment.app.DialogFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.micah.beatful.R;
 import com.micah.beatful.ui.extras.Splash;
+import com.micah.beatful.ui.home.BeatPlayer;
 
 import java.util.Objects;
 
@@ -28,7 +30,12 @@ public class SignOutFragment extends DialogFragment {
         TextView textProceed = root.findViewById(R.id.textSignOutProceed);
         TextView textCancel = root.findViewById(R.id.textSignOutCancel);
 
-        textProceed.setOnClickListener(view -> resetPersonalData());
+        textProceed.setOnClickListener(view -> {
+            resetPersonalData();
+            stopMedia();
+            startActivity(new Intent(requireContext(), Splash.class));
+            dismiss();
+        });
         textCancel.setOnClickListener(view -> dismiss());
         return root;
     }
@@ -50,7 +57,19 @@ public class SignOutFragment extends DialogFragment {
         if (firebaseAuth.getCurrentUser() != null) {
             firebaseAuth.signOut();
         }
-        startActivity(new Intent(requireContext(), Splash.class));
-        dismiss();
+    }
+
+    private void stopMedia () {
+        MediaPlayer player = BeatPlayer.getMediaPlayer();
+        try {
+            if (player != null) {
+                if (player.isPlaying()) {
+                    player.stop();
+                }
+                player.release();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

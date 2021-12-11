@@ -3,10 +3,11 @@ package com.micah.beatful.ui.home;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -15,7 +16,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
@@ -38,7 +38,6 @@ public class BeatPlayer extends AppCompatActivity {
     ImageView imageView;
     String songName;
 
-    public static final String EXTRA_NAME = "song_name";
     static MediaPlayer mediaPlayer;
     int i;
     ArrayList<File> mySongs;
@@ -54,13 +53,22 @@ public class BeatPlayer extends AppCompatActivity {
 
     Thread updateSeekBar;
 
+    public static MediaPlayer getMediaPlayer() {
+        return mediaPlayer;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences prefs = getSharedPreferences("MyPreferences_001", MODE_PRIVATE);
+        if (Objects.equals(prefs.getString("textStyle", "normal"), "normal")) {
+            setTheme(R.style.Theme_BeatfulPlayer);
+        } else {
+            setTheme(R.style.Theme_BeatfulPlayer_ButDiff);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_beat_player);
 
-//        getActionBar().setTitle("BeatFul");
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         try{
             Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         } catch (NullPointerException e) {
@@ -129,8 +137,8 @@ public class BeatPlayer extends AppCompatActivity {
 
         seekMusicBar.setMax(mediaPlayer.getDuration());
         updateSeekBar.start();
-        seekMusicBar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.MULTIPLY);
-        seekMusicBar.getThumb().setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.SRC_IN);
+        seekMusicBar.getProgressDrawable().setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+        seekMusicBar.getThumb().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
 
         seekMusicBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -166,88 +174,68 @@ public class BeatPlayer extends AppCompatActivity {
         },delay);
 
 
-        btnPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mediaPlayer.isPlaying())
-                {
-                    btnPlay.setBackgroundResource(R.drawable.ic_play);
-                    mediaPlayer.pause();
-                }
-                else
-                {
-                    btnPlay.setBackgroundResource(R.drawable.ic_pause);
-                    mediaPlayer.start();
-
-                    TranslateAnimation moveAnim = new TranslateAnimation(-25,25,-25,25);
-                    moveAnim.setInterpolator(new AccelerateInterpolator());
-                    moveAnim.setDuration(600);
-                    moveAnim.setFillEnabled(true);
-                    moveAnim.setFillAfter(true);
-                    moveAnim.setRepeatMode(Animation.REVERSE);
-                    moveAnim.setRepeatCount(1);
-                    imageView.startAnimation(moveAnim);
-                }
+        btnPlay.setOnClickListener(view -> {
+            if (mediaPlayer.isPlaying())
+            {
+                btnPlay.setBackgroundResource(R.drawable.ic_play);
+                mediaPlayer.pause();
             }
-        });
-
-
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mediaPlayer.stop();
-                mediaPlayer.release();
-                i =((i+1)%mySongs.size());
-                Uri uri = Uri.parse(mySongs.get(i).toString());
-                mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
-                songName = mySongs.get(i).getName();
-                txtSongName.setText(songName);
+            else
+            {
+                btnPlay.setBackgroundResource(R.drawable.ic_pause);
                 mediaPlayer.start();
 
-                startAnimation(imageView,360f);
+                TranslateAnimation moveAnim = new TranslateAnimation(-25,25,-25,25);
+                moveAnim.setInterpolator(new AccelerateInterpolator());
+                moveAnim.setDuration(600);
+                moveAnim.setFillEnabled(true);
+                moveAnim.setFillAfter(true);
+                moveAnim.setRepeatMode(Animation.REVERSE);
+                moveAnim.setRepeatCount(1);
+                imageView.startAnimation(moveAnim);
             }
         });
 
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                btnNext.performClick();
+
+        btnNext.setOnClickListener(view -> {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            i =((i+1)%mySongs.size());
+            Uri uri1 = Uri.parse(mySongs.get(i).toString());
+            mediaPlayer = MediaPlayer.create(getApplicationContext(), uri1);
+            songName = mySongs.get(i).getName();
+            txtSongName.setText(songName);
+            mediaPlayer.start();
+
+            startAnimation(imageView,360f);
+        });
+
+        mediaPlayer.setOnCompletionListener(mediaPlayer -> btnNext.performClick());
+
+        btnPrevious.setOnClickListener(view -> {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            i = ((i-1)<0)?(mySongs.size()-1):i-1;
+            Uri uri12 = Uri.parse(mySongs.get(i).toString());
+            mediaPlayer = MediaPlayer.create(getApplicationContext(), uri12);
+            songName = mySongs.get(i).getName();
+            txtSongName.setText(songName);
+            mediaPlayer.start();
+
+            startAnimation(imageView,-360f);
+        });
+
+        btnFastForward.setOnClickListener(view -> {
+            if(mediaPlayer.isPlaying())
+            {
+                mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()+1000);
             }
         });
 
-        btnPrevious.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mediaPlayer.stop();
-                mediaPlayer.release();
-                i = ((i-1)<0)?(mySongs.size()-1):i-1;
-                Uri uri = Uri.parse(mySongs.get(i).toString());
-                mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
-                songName = mySongs.get(i).getName();
-                txtSongName.setText(songName);
-                mediaPlayer.start();
-
-                startAnimation(imageView,-360f);
-            }
-        });
-
-        btnFastForward.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(mediaPlayer.isPlaying())
-                {
-                    mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()+1000);
-                }
-            }
-        });
-
-        btnFastBackward.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(mediaPlayer.isPlaying())
-                {
-                    mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()-1000);
-                }
+        btnFastBackward.setOnClickListener(view -> {
+            if(mediaPlayer.isPlaying())
+            {
+                mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()-1000);
             }
         });
 
