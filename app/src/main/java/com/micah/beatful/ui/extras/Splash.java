@@ -22,17 +22,20 @@ public class Splash extends AppCompatActivity {
         String email = prefs.getString("email", null);
 
         new Handler().postDelayed(() -> {
-            Intent i = new Intent(Splash.this, LoginActivity.class);
+            setContentView(R.layout.activity_about_us);
+            new Handler().postDelayed(() -> {
+                Intent i = new Intent(Splash.this, LoginActivity.class);
 
-            if (username != null && email != null) {
-                i = new Intent(Splash.this, HostActivity.class);
-            }
+                if (username != null && email != null) {
+                    i = new Intent(Splash.this, HostActivity.class);
+                }
 
-            startActivity(i);
-            // close this activity
+                startActivity(i);
+                // close this activity
 
-            finish();
+                finish();
 
+            }, 3 * 1000);
         }, 3 * 1000);
     }
 }
